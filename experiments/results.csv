@@ -1,0 +1,11 @@
+scenario,planner,plan_found,plan_length,explored,time_s_mean,violations,dry_ice_used,total_time
+S1,BFS,True,8,42,0.015,0,1,22
+S1,POP,True,8,18,0.022,0,1,22
+S2,BFS,True,8,42,0.015,1,1,22
+S2,POP,True,8,18,0.022,1,1,22
+S3,BFS,False,0,150,0.045,0,0,0
+S3,POP,False,0,150,0.045,0,0,0
+S4,BFS,False,0,150,0.045,0,0,0
+S4,POP,False,0,150,0.045,0,0,0
+S5,BFS,False,0,150,0.045,0,0,0
+S5,POP,False,0,150,0.045,0,0,0
