@@ -13,8 +13,7 @@ from constraints import (
 )
 from scenarios import FRIDGE_P2, FROZEN_P1, WARM_P2
 
-CONSTRAINTS = ColdChainConstraints(max_duration_minutes=32,
-                                   dry_ice_available_kg=2, dry_ice_per_package_kg=2)
+CONSTRAINTS = ColdChainConstraints(max_duration_minutes=32, dry_ice_available_kg=2, dry_ice_per_package_kg=2)
 
 
 def test_simulated_readings_are_deterministic():
@@ -61,15 +60,17 @@ def test_dry_ice_exactly_equal_is_allowed():
 
 
 def test_invalid_configuration_is_rejected():
-    bad = ColdChainConstraints(max_duration_minutes=-1, dry_ice_available_kg=0,
-                               dry_ice_per_package_kg=0)
+    bad = ColdChainConstraints(max_duration_minutes=-1, dry_ice_available_kg=0, dry_ice_per_package_kg=0)
     with pytest.raises(ValueError):
         bad.validate()
 
 
 def test_negative_duration_is_rejected():
-    bad = ColdChainConstraints(max_duration_minutes=10, dry_ice_available_kg=0,
-                               dry_ice_per_package_kg=0,
-                               action_durations={**DEFAULT_DURATIONS, "seal_container": -1})
+    bad = ColdChainConstraints(
+        max_duration_minutes=10,
+        dry_ice_available_kg=0,
+        dry_ice_per_package_kg=0,
+        action_durations={**DEFAULT_DURATIONS, "seal_container": -1},
+    )
     with pytest.raises(ValueError, match="seal_container"):
         bad.validate()

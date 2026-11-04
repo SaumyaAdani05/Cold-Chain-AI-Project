@@ -193,9 +193,7 @@ def render_graph_view(
 
     # Build appropriate Digraph
     if planner_name.lower() == "pop" and result.pop is not None:
-        dot = pop_to_dot(
-            result.pop, result=val_res, title=f"POP Causal Graph ({len(result.plan)} steps)"
-        )
+        dot = pop_to_dot(result.pop, result=val_res, title=f"POP Causal Graph ({len(result.plan)} steps)")
     else:
         dot = plan_to_dot(result.plan, result=val_res, title=f"{planner_name.upper()} Linear Plan")
 

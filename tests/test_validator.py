@@ -20,7 +20,6 @@ from tests.fixtures.mock_planners import (
 from tests.fixtures.stubs import Action
 from validator import validate, validate_plan
 
-
 # =====================================================================
 # Scenario-based tests (Samkit)
 # =====================================================================
@@ -55,10 +54,7 @@ def test_validator_rejects_sealing_before_inspection():
     ]
     report = validate_plan(scenario, sequence)
     assert not report.valid
-    assert any(
-        "seal_container(P1)" in f and "container_inspected" in f
-        for f in report.precondition_failures
-    )
+    assert any("seal_container(P1)" in f and "container_inspected" in f for f in report.precondition_failures)
 
 
 def test_validator_rejects_loading_before_dock():
@@ -101,8 +97,7 @@ def test_one_package_within_dry_ice_stock_is_not_flagged():
         a
         for a in scenario.build_problem().actions
         if a.package_id == "P1"
-        and a.action_type
-        in ("receive_package", "verify_temperature", "move_to_cold_room", "pack_dry_ice")
+        and a.action_type in ("receive_package", "verify_temperature", "move_to_cold_room", "pack_dry_ice")
     ]
     report = validate_plan(scenario, problem_actions)
     assert report.dry_ice_used_kg == 2
@@ -111,9 +106,7 @@ def test_one_package_within_dry_ice_stock_is_not_flagged():
 
 def test_two_packages_exceed_dry_ice_stock_and_are_flagged():
     scenario = get_scenario("limited_dry_ice")  # packages P1 and P3 need 2 kg each
-    pack_actions = [
-        a for a in scenario.build_problem().actions if a.action_type == "pack_dry_ice"
-    ]
+    pack_actions = [a for a in scenario.build_problem().actions if a.action_type == "pack_dry_ice"]
     report = validate_plan(scenario, pack_actions)
     assert report.dry_ice_used_kg == 4
     assert any("Dry ice required 4 kg" in v for v in report.constraint_violations)
@@ -126,9 +119,7 @@ def test_every_scenario_builds_a_consistent_problem():
             assert f"at_gate({pkg.package_id})" in problem.initial_state
             assert f"container_open({pkg.package_id})" in problem.initial_state
             assert f"loaded({pkg.package_id})" in problem.goal
-        assert len(problem.actions) == len(
-            build_actions(scenario.packages, scenario.constraints)
-        )
+        assert len(problem.actions) == len(build_actions(scenario.packages, scenario.constraints))
 
 
 def test_unknown_scenario_key_raises_helpful_error():
@@ -233,9 +224,7 @@ def test_t4_load_before_seal():
     )
 
     assert result.valid is False
-    load_v = next(
-        (v for v in result.violations if v.step == 7 and "load(P1)" in (v.action or "")), None
-    )
+    load_v = next((v for v in result.violations if v.step == 7 and "load(P1)" in (v.action or "")), None)
     assert load_v is not None
     assert load_v.kind == "PRECONDITION"
     assert "sealed(P1)" in load_v.message

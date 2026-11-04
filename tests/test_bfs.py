@@ -8,8 +8,7 @@ from validator import validate_plan
 def _run(key, **overrides):
     scenario = get_scenario(key)
     limits = scenario.constraints
-    kwargs = {"max_duration": limits.max_duration_minutes,
-              "max_dry_ice": limits.dry_ice_available_kg}
+    kwargs = {"max_duration": limits.max_duration_minutes, "max_dry_ice": limits.dry_ice_available_kg}
     kwargs.update(overrides)
     return scenario, bfs_plan(scenario.build_problem(), **kwargs)
 
@@ -63,8 +62,9 @@ def test_bfs_time_budget_boundary():
 def test_bfs_goal_already_true_returns_empty_plan():
     scenario = get_scenario("normal_single_vaccine")
     problem = scenario.build_problem()
-    satisfied = type(problem)(name="trivial", initial_state=problem.goal,
-                              goal=problem.goal, actions=problem.actions)
+    satisfied = type(problem)(
+        name="trivial", initial_state=problem.goal, goal=problem.goal, actions=problem.actions
+    )
     result = bfs_plan(satisfied)
     assert result.success
     assert result.actions == []
@@ -85,10 +85,16 @@ def test_bfs_terminates_when_an_action_can_be_repeated_without_budget():
     # The goal is unreachable, so the search has to finish on its own.
     from strips import Action, PlanningProblem
 
-    tick = Action(name="tick", preconditions=frozenset(), add_effects=frozenset(),
-                  delete_effects=frozenset(), duration=1)
-    problem = PlanningProblem(name="loop", initial_state=frozenset(),
-                              goal=frozenset({"never"}), actions=(tick,))
+    tick = Action(
+        name="tick",
+        preconditions=frozenset(),
+        add_effects=frozenset(),
+        delete_effects=frozenset(),
+        duration=1,
+    )
+    problem = PlanningProblem(
+        name="loop", initial_state=frozenset(), goal=frozenset({"never"}), actions=(tick,)
+    )
     result = bfs_plan(problem)
     assert not result.success
     assert result.explored_states <= 2
@@ -97,7 +103,10 @@ def test_bfs_terminates_when_an_action_can_be_repeated_without_budget():
 def test_bfs_still_finds_shortest_plan_with_repeatable_actions():
     scenario = get_scenario("mixed_processing_requirements")
     limits = scenario.constraints
-    result = bfs_plan(scenario.build_problem(), max_duration=limits.max_duration_minutes,
-                      max_dry_ice=limits.dry_ice_available_kg)
+    result = bfs_plan(
+        scenario.build_problem(),
+        max_duration=limits.max_duration_minutes,
+        max_dry_ice=limits.dry_ice_available_kg,
+    )
     assert result.success
     assert len(result.actions) == 23

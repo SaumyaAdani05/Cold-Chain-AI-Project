@@ -1,7 +1,5 @@
 """Tests for the partial-order planner: causal links, orderings, threats and resolution."""
 
-from actions import pack_dry_ice, seal_container
-from constraints import ColdChainConstraints
 from pop import START, find_threats, initial_partial_plan, pop_plan
 from scenarios import get_scenario
 from validator import validate_plan
@@ -18,8 +16,10 @@ def _step_name(plan, step_id):
 
 
 def _link_triples(plan):
-    return {(_step_name(plan, l.producer), l.condition, _step_name(plan, l.consumer))
-            for l in plan.links}
+    return {
+        (_step_name(plan, link.producer), link.condition, _step_name(plan, link.consumer))
+        for link in plan.links
+    }
 
 
 def _must_precede(plan, before_name, after_name):
@@ -61,8 +61,10 @@ def test_pack_dry_ice_and_inspection_are_independent():
     assert not _must_precede(plan, "pack_dry_ice(P1)", "inspect_container(P1)")
     assert not _must_precede(plan, "inspect_container(P1)", "pack_dry_ice(P1)")
     names = {(plan.actions[a].name, plan.actions[b].name) for a, b in plan.independent_pairs()}
-    assert ("pack_dry_ice(P1)", "inspect_container(P1)") in names or \
-           ("inspect_container(P1)", "pack_dry_ice(P1)") in names
+    assert ("pack_dry_ice(P1)", "inspect_container(P1)") in names or (
+        "inspect_container(P1)",
+        "pack_dry_ice(P1)",
+    ) in names
 
 
 def test_independent_packages_are_not_ordered_against_each_other():
@@ -89,8 +91,9 @@ def test_threat_is_detected_when_seal_could_run_before_pack():
     seal_id = plan.add_step(seal)
     assert plan.add_link(START, "container_open(P1)", pack_id)
     threats = find_threats(plan)
-    assert any(link.producer == START and link.consumer == pack_id and threat == seal_id
-               for link, threat in threats)
+    assert any(
+        link.producer == START and link.consumer == pack_id and threat == seal_id for link, threat in threats
+    )
 
 
 def test_promotion_is_rejected_when_it_would_create_a_cycle():

@@ -30,17 +30,17 @@ from validator import ValidationReport, validate_plan
 class AlgorithmRun:
     """One planner run on one scenario, plus its validation result."""
 
-    algorithm: str                       # "BFS" or "POP"
-    status: str                          # "valid", "rejected" or "no_plan"
-    message: str                         # planner's own explanation
-    explored: int                        # BFS: states expanded; POP: nodes refined
-    elapsed_seconds: float               # wall-clock planning time
-    representation: str                  # "total order" or "partial order"
+    algorithm: str  # "BFS" or "POP"
+    status: str  # "valid", "rejected" or "no_plan"
+    message: str  # planner's own explanation
+    explored: int  # BFS: states expanded; POP: nodes refined
+    elapsed_seconds: float  # wall-clock planning time
+    representation: str  # "total order" or "partial order"
     actions: List[Action] = field(default_factory=list)  # sequence checked by validator
-    partial_plan: Optional[PartialOrderPlan] = None      # POP only
+    partial_plan: Optional[PartialOrderPlan] = None  # POP only
     validation: Optional[ValidationReport] = None
-    pruned_successors: int = 0           # BFS only
-    threats_resolved: int = 0            # POP only (counted over the whole search)
+    pruned_successors: int = 0  # BFS only
+    threats_resolved: int = 0  # POP only (counted over the whole search)
 
     @property
     def success(self) -> bool:
@@ -87,9 +87,9 @@ def run_bfs(scenario: Scenario) -> AlgorithmRun:
     """Run the BFS planner with the scenario's time and dry-ice limits."""
     problem = scenario.build_problem()
     limits = scenario.constraints
-    result = bfs_plan(problem,
-                      max_duration=limits.max_duration_minutes,
-                      max_dry_ice=limits.dry_ice_available_kg)
+    result = bfs_plan(
+        problem, max_duration=limits.max_duration_minutes, max_dry_ice=limits.dry_ice_available_kg
+    )
     validation = validate_plan(scenario, result.actions) if result.success else None
     return AlgorithmRun(
         algorithm="BFS",
@@ -146,17 +146,19 @@ def comparison_rows(runs: List[AlgorithmRun]) -> List[Dict[str, object]]:
     """Table rows (one dict per algorithm) for display in the UI or the CLI."""
     rows = []
     for run in runs:
-        rows.append({
-            "Algorithm": run.algorithm,
-            "Result": STATUS_LABELS[run.status],
-            "Goal achieved": "yes" if run.goal_achieved else "no",
-            "Plan length (actions)": run.plan_length if run.success else "-",
-            "Planning time (ms)": round(run.elapsed_seconds * 1000, 3),
-            "Explored (states / nodes)": run.explored,
-            "Sequential duration (min)": run.sequential_minutes if run.success else "-",
-            "Parallel makespan (min)": run.makespan_minutes if run.makespan_minutes is not None else "-",
-            "Dry ice used (kg)": run.dry_ice_kg if run.success else "-",
-            "Constraint violations": len(run.violations) if run.validation else "-",
-            "Plan representation": run.representation,
-        })
+        rows.append(
+            {
+                "Algorithm": run.algorithm,
+                "Result": STATUS_LABELS[run.status],
+                "Goal achieved": "yes" if run.goal_achieved else "no",
+                "Plan length (actions)": run.plan_length if run.success else "-",
+                "Planning time (ms)": round(run.elapsed_seconds * 1000, 3),
+                "Explored (states / nodes)": run.explored,
+                "Sequential duration (min)": run.sequential_minutes if run.success else "-",
+                "Parallel makespan (min)": run.makespan_minutes if run.makespan_minutes is not None else "-",
+                "Dry ice used (kg)": run.dry_ice_kg if run.success else "-",
+                "Constraint violations": len(run.violations) if run.validation else "-",
+                "Plan representation": run.representation,
+            }
+        )
     return rows

@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from comparison import AlgorithmRun, STATUS_LABELS, compare_algorithms, run_bfs, run_pop
+from comparison import STATUS_LABELS, AlgorithmRun, compare_algorithms, run_bfs, run_pop
 from constraints import simulate_temperature_readings
 from scenarios import Scenario, get_scenario, list_scenarios
 
@@ -129,8 +129,9 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument("--list", action="store_true", help="list scenarios and exit")
     parser.add_argument("--scenario", help="scenario key (default: all scenarios)")
     parser.add_argument("--algorithm", choices=["bfs", "pop", "both"], default="both")
-    parser.add_argument("--export-json", metavar="DIR",
-                        help="write each scenario and its results as JSON into DIR")
+    parser.add_argument(
+        "--export-json", metavar="DIR", help="write each scenario and its results as JSON into DIR"
+    )
     args = parser.parse_args(argv)
 
     if args.list:

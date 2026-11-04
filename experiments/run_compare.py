@@ -130,9 +130,7 @@ def generate_charts(csv_path: Path, output_dir: Path | None = None) -> list[Path
 
     plt.xlabel("Scenario ID", fontsize=11)
     plt.ylabel("Mean Planning Time (seconds)", fontsize=11)
-    plt.title(
-        "Planning Time Comparison by Scenario (Mean of 5 Runs)", fontsize=12, fontweight="bold"
-    )
+    plt.title("Planning Time Comparison by Scenario (Mean of 5 Runs)", fontsize=12, fontweight="bold")
     plt.xticks(x, scenarios)
     plt.legend()
     plt.grid(axis="y", linestyle="--", alpha=0.7)

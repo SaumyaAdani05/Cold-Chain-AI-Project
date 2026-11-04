@@ -39,7 +39,7 @@ from typing import Dict, List, Optional, Set, Tuple
 
 from strips import Action, PlanningProblem
 
-START = "START"    # fake step: its add effects are the initial state
+START = "START"  # fake step: its add effects are the initial state
 FINISH = "FINISH"  # fake step: its preconditions are the goal
 
 
@@ -55,6 +55,7 @@ class CausalLink:
 # ---------------------------------------------------------------------------
 # Small graph helpers used for ordering constraints
 # ---------------------------------------------------------------------------
+
 
 def _adjacency(orderings: Set[Tuple[str, str]]) -> Dict[str, List[str]]:
     """Turn (before, after) pairs into a dictionary of successors."""
@@ -81,17 +82,18 @@ def _reachable(adj: Dict[str, List[str]], start: str) -> Set[str]:
 # Search node: a partial plan
 # ---------------------------------------------------------------------------
 
+
 class PartialPlan:
     """One node of the POP search tree (a partially built plan)."""
 
     def __init__(self) -> None:
-        self.steps: Dict[str, Action] = {}          # step id -> action
-        self.creation_order: List[str] = []         # ids in the order created
+        self.steps: Dict[str, Action] = {}  # step id -> action
+        self.creation_order: List[str] = []  # ids in the order created
         self.orderings: Set[Tuple[str, str]] = set()  # explicit "a before b"
-        self.links: List[CausalLink] = []           # causal links
+        self.links: List[CausalLink] = []  # causal links
         self.open_conditions: List[Tuple[str, str]] = []  # (consumer, condition)
-        self.used_action_names: Set[str] = set()    # actions already in plan
-        self.counter = 0                            # used to name new steps
+        self.used_action_names: Set[str] = set()  # actions already in plan
+        self.counter = 0  # used to name new steps
 
     # -- queries -------------------------------------------------------------
 
@@ -154,17 +156,20 @@ class PartialPlan:
         action_ids = [sid for sid in self.creation_order if sid not in (START, FINISH)]
         actions = {sid: self.steps[sid] for sid in action_ids}
         orderings = {(a, b) for (a, b) in self.orderings if a in actions and b in actions}
-        return PartialOrderPlan(step_ids=action_ids, actions=actions,
-                                orderings=orderings, links=list(self.links))
+        return PartialOrderPlan(
+            step_ids=action_ids, actions=actions, orderings=orderings, links=list(self.links)
+        )
 
 
 def initial_partial_plan(problem: PlanningProblem) -> PartialPlan:
     """The starting plan: START before FINISH, goal facts are open conditions."""
     plan = PartialPlan()
-    plan.steps[START] = Action(name=START, preconditions=frozenset(),
-                               add_effects=problem.initial_state, delete_effects=frozenset())
-    plan.steps[FINISH] = Action(name=FINISH, preconditions=problem.goal,
-                                add_effects=frozenset(), delete_effects=frozenset())
+    plan.steps[START] = Action(
+        name=START, preconditions=frozenset(), add_effects=problem.initial_state, delete_effects=frozenset()
+    )
+    plan.steps[FINISH] = Action(
+        name=FINISH, preconditions=problem.goal, add_effects=frozenset(), delete_effects=frozenset()
+    )
     plan.creation_order = [START, FINISH]
     plan.orderings.add((START, FINISH))
     for goal_fact in sorted(problem.goal):
@@ -197,13 +202,14 @@ def find_threats(plan: PartialPlan) -> List[Tuple[CausalLink, str]]:
 # The finished plan
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class PartialOrderPlan:
     """A finished partially ordered plan (only real actions, no START/FINISH)."""
 
-    step_ids: List[str]                       # action steps in creation order
-    actions: Dict[str, Action]                # step id -> action
-    orderings: Set[Tuple[str, str]]           # explicit ordering constraints
+    step_ids: List[str]  # action steps in creation order
+    actions: Dict[str, Action]  # step id -> action
+    orderings: Set[Tuple[str, str]]  # explicit ordering constraints
     links: List[CausalLink] = field(default_factory=list)  # includes START/FINISH links
 
     def linearization_ids(self) -> List[str]:
@@ -251,7 +257,7 @@ class PartialOrderPlan:
         clos = self.closure()
         pairs = []
         for i, a in enumerate(self.step_ids):
-            for b in self.step_ids[i + 1:]:
+            for b in self.step_ids[i + 1 :]:
                 if b not in clos[a] and a not in clos[b]:
                     pairs.append((a, b))
         return pairs
@@ -260,9 +266,8 @@ class PartialOrderPlan:
         """Ordering constraints without the ones implied by other constraints."""
         clos = self.closure()
         kept = []
-        for (a, b) in sorted(self.orderings):
-            implied = any(c not in (a, b) and c in clos[a] and b in clos[c]
-                          for c in self.step_ids)
+        for a, b in sorted(self.orderings):
+            implied = any(c not in (a, b) and c in clos[a] and b in clos[c] for c in self.step_ids)
             if not implied:
                 kept.append((a, b))
         return kept
@@ -271,6 +276,7 @@ class PartialOrderPlan:
 # ---------------------------------------------------------------------------
 # Depth-first search with backtracking
 # ---------------------------------------------------------------------------
+
 
 class _POPSearch:
     """Holds the action library and the search counters."""
@@ -281,8 +287,8 @@ class _POPSearch:
             for effect in sorted(action.add_effects):
                 self.achievers[effect].append(action)
         self.max_nodes = max_nodes
-        self.nodes = 0               # plan refinements explored
-        self.threats_resolved = 0    # promotion/demotion choices tried
+        self.nodes = 0  # plan refinements explored
+        self.threats_resolved = 0  # promotion/demotion choices tried
         self.limit_hit = False
 
     def solve(self, plan: PartialPlan) -> Optional[PartialPlan]:
@@ -384,16 +390,30 @@ def pop_plan(problem: PlanningProblem, max_nodes: int = 20000) -> POPResult:
         if search.limit_hit:
             message = f"Search stopped at the node limit ({max_nodes})."
         else:
-            message = ("No partially ordered plan exists: an open condition has no "
-                       "achiever, or every choice ended in a dead end.")
-        return POPResult(success=False, plan=None, explored_nodes=search.nodes,
-                         threats_resolved=search.threats_resolved,
-                         elapsed_seconds=elapsed, message=message)
+            message = (
+                "No partially ordered plan exists: an open condition has no "
+                "achiever, or every choice ended in a dead end."
+            )
+        return POPResult(
+            success=False,
+            plan=None,
+            explored_nodes=search.nodes,
+            threats_resolved=search.threats_resolved,
+            elapsed_seconds=elapsed,
+            message=message,
+        )
 
     plan = solution.to_partial_order_plan()
-    message = (f"Partially ordered plan with {len(plan.step_ids)} steps, "
-               f"{len(plan.links)} causal links and "
-               f"{len(plan.reduced_orderings())} ordering constraints.")
-    return POPResult(success=True, plan=plan, explored_nodes=search.nodes,
-                     threats_resolved=search.threats_resolved,
-                     elapsed_seconds=elapsed, message=message)
+    message = (
+        f"Partially ordered plan with {len(plan.step_ids)} steps, "
+        f"{len(plan.links)} causal links and "
+        f"{len(plan.reduced_orderings())} ordering constraints."
+    )
+    return POPResult(
+        success=True,
+        plan=plan,
+        explored_nodes=search.nodes,
+        threats_resolved=search.threats_resolved,
+        elapsed_seconds=elapsed,
+        message=message,
+    )

@@ -108,8 +108,7 @@ def test_v5_safe_rendering_when_dot_missing():
 def test_plan_truncation_for_large_plans():
     """Verify large plans (>80 steps) have a truncation indicator node."""
     huge_plan = [
-        Action(f"step_{i}(P1)", frozenset(), frozenset(), frozenset(), 1, 0, "P1")
-        for i in range(1, 101)
+        Action(f"step_{i}(P1)", frozenset(), frozenset(), frozenset(), 1, 0, "P1") for i in range(1, 101)
     ]
     dot = plan_to_dot(huge_plan, max_steps=80)
     source = dot.source

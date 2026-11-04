@@ -24,20 +24,35 @@ from strips import Action, State
 
 # ---- Predicate names (fact builders) ---------------------------------------
 
+
 def fact(predicate: str, package_id: str) -> str:
     """Build a ground fact such as 'at_cold_room(P1)'."""
     return f"{predicate}({package_id})"
 
 
 PREDICATES = (
-    "at_gate", "at_receiving", "temp_in_range", "temp_verified", "at_cold_room",
-    "container_open", "dry_ice_packed", "container_inspected",
-    "container_sealed", "at_dock", "loaded",
+    "at_gate",
+    "at_receiving",
+    "temp_in_range",
+    "temp_verified",
+    "at_cold_room",
+    "container_open",
+    "dry_ice_packed",
+    "container_inspected",
+    "container_sealed",
+    "at_dock",
+    "loaded",
 )
 
 ACTION_TYPES = (
-    "receive_package", "verify_temperature", "move_to_cold_room", "pack_dry_ice",
-    "inspect_container", "seal_container", "move_to_loading_dock", "load_pallet",
+    "receive_package",
+    "verify_temperature",
+    "move_to_cold_room",
+    "pack_dry_ice",
+    "inspect_container",
+    "seal_container",
+    "move_to_loading_dock",
+    "load_pallet",
 )
 
 LOCATION_PREDICATES = ("at_gate", "at_receiving", "at_cold_room", "at_dock", "loaded")
@@ -45,9 +60,16 @@ LOCATION_PREDICATES = ("at_gate", "at_receiving", "at_cold_room", "at_dock", "lo
 
 # ---- Helper that creates one grounded action -------------------------------
 
-def _make_action(action_type: str, package: PackageSpec, constraints: ColdChainConstraints,
-                 preconditions: Iterable[str], add: Iterable[str],
-                 delete: Iterable[str], dry_ice_cost: int = 0) -> Action:
+
+def _make_action(
+    action_type: str,
+    package: PackageSpec,
+    constraints: ColdChainConstraints,
+    preconditions: Iterable[str],
+    add: Iterable[str],
+    delete: Iterable[str],
+    dry_ice_cost: int = 0,
+) -> Action:
     pid = package.package_id
     return Action(
         name=f"{action_type}({pid})",
@@ -63,50 +85,71 @@ def _make_action(action_type: str, package: PackageSpec, constraints: ColdChainC
 
 # ---- The eight cold-chain operations ---------------------------------------
 
+
 def receive_package(pkg: PackageSpec, c: ColdChainConstraints) -> Action:
     """Package is taken from the gate onto the receiving bay."""
     pid = pkg.package_id
-    return _make_action("receive_package", pkg, c,
-                        preconditions=[fact("at_gate", pid)],
-                        add=[fact("at_receiving", pid)],
-                        delete=[fact("at_gate", pid)])
+    return _make_action(
+        "receive_package",
+        pkg,
+        c,
+        preconditions=[fact("at_gate", pid)],
+        add=[fact("at_receiving", pid)],
+        delete=[fact("at_gate", pid)],
+    )
 
 
 def verify_temperature(pkg: PackageSpec, c: ColdChainConstraints) -> Action:
     """Check the temperature readings. Only applicable when the readings are in range."""
     pid = pkg.package_id
-    return _make_action("verify_temperature", pkg, c,
-                        preconditions=[fact("at_receiving", pid), fact("temp_in_range", pid)],
-                        add=[fact("temp_verified", pid)],
-                        delete=[])
+    return _make_action(
+        "verify_temperature",
+        pkg,
+        c,
+        preconditions=[fact("at_receiving", pid), fact("temp_in_range", pid)],
+        add=[fact("temp_verified", pid)],
+        delete=[],
+    )
 
 
 def move_to_cold_room(pkg: PackageSpec, c: ColdChainConstraints) -> Action:
     """Move the verified package into the cold room."""
     pid = pkg.package_id
-    return _make_action("move_to_cold_room", pkg, c,
-                        preconditions=[fact("at_receiving", pid), fact("temp_verified", pid)],
-                        add=[fact("at_cold_room", pid)],
-                        delete=[fact("at_receiving", pid)])
+    return _make_action(
+        "move_to_cold_room",
+        pkg,
+        c,
+        preconditions=[fact("at_receiving", pid), fact("temp_verified", pid)],
+        add=[fact("at_cold_room", pid)],
+        delete=[fact("at_receiving", pid)],
+    )
 
 
 def pack_dry_ice(pkg: PackageSpec, c: ColdChainConstraints) -> Action:
     """Put dry ice into the still-open container. Consumes dry-ice stock."""
     pid = pkg.package_id
-    return _make_action("pack_dry_ice", pkg, c,
-                        preconditions=[fact("at_cold_room", pid), fact("container_open", pid)],
-                        add=[fact("dry_ice_packed", pid)],
-                        delete=[],
-                        dry_ice_cost=c.dry_ice_per_package_kg)
+    return _make_action(
+        "pack_dry_ice",
+        pkg,
+        c,
+        preconditions=[fact("at_cold_room", pid), fact("container_open", pid)],
+        add=[fact("dry_ice_packed", pid)],
+        delete=[],
+        dry_ice_cost=c.dry_ice_per_package_kg,
+    )
 
 
 def inspect_container(pkg: PackageSpec, c: ColdChainConstraints) -> Action:
     """Inspect the open container. Independent of dry-ice packing."""
     pid = pkg.package_id
-    return _make_action("inspect_container", pkg, c,
-                        preconditions=[fact("at_cold_room", pid), fact("container_open", pid)],
-                        add=[fact("container_inspected", pid)],
-                        delete=[])
+    return _make_action(
+        "inspect_container",
+        pkg,
+        c,
+        preconditions=[fact("at_cold_room", pid), fact("container_open", pid)],
+        add=[fact("container_inspected", pid)],
+        delete=[],
+    )
 
 
 def seal_container(pkg: PackageSpec, c: ColdChainConstraints) -> Action:
@@ -115,31 +158,44 @@ def seal_container(pkg: PackageSpec, c: ColdChainConstraints) -> Action:
     preconditions = [fact("container_inspected", pid), fact("container_open", pid)]
     if pkg.needs_dry_ice:
         preconditions.append(fact("dry_ice_packed", pid))
-    return _make_action("seal_container", pkg, c,
-                        preconditions=preconditions,
-                        add=[fact("container_sealed", pid)],
-                        delete=[fact("container_open", pid)])
+    return _make_action(
+        "seal_container",
+        pkg,
+        c,
+        preconditions=preconditions,
+        add=[fact("container_sealed", pid)],
+        delete=[fact("container_open", pid)],
+    )
 
 
 def move_to_loading_dock(pkg: PackageSpec, c: ColdChainConstraints) -> Action:
     """Move a sealed package from the cold room to the loading dock."""
     pid = pkg.package_id
-    return _make_action("move_to_loading_dock", pkg, c,
-                        preconditions=[fact("at_cold_room", pid), fact("container_sealed", pid)],
-                        add=[fact("at_dock", pid)],
-                        delete=[fact("at_cold_room", pid)])
+    return _make_action(
+        "move_to_loading_dock",
+        pkg,
+        c,
+        preconditions=[fact("at_cold_room", pid), fact("container_sealed", pid)],
+        add=[fact("at_dock", pid)],
+        delete=[fact("at_cold_room", pid)],
+    )
 
 
 def load_pallet(pkg: PackageSpec, c: ColdChainConstraints) -> Action:
     """Load the sealed package onto the delivery pallet."""
     pid = pkg.package_id
-    return _make_action("load_pallet", pkg, c,
-                        preconditions=[fact("at_dock", pid), fact("container_sealed", pid)],
-                        add=[fact("loaded", pid)],
-                        delete=[fact("at_dock", pid)])
+    return _make_action(
+        "load_pallet",
+        pkg,
+        c,
+        preconditions=[fact("at_dock", pid), fact("container_sealed", pid)],
+        add=[fact("loaded", pid)],
+        delete=[fact("at_dock", pid)],
+    )
 
 
 # ---- Building the whole action library and the initial state ---------------
+
 
 def actions_for_package(pkg: PackageSpec, c: ColdChainConstraints) -> List[Action]:
     """All grounded actions for one package. Pack-dry-ice exists only if needed."""

@@ -24,14 +24,14 @@ State = FrozenSet[str]
 class Action:
     """One grounded STRIPS action, e.g. seal_container(P1)."""
 
-    name: str                       # readable name, e.g. "seal_container(P1)"
-    preconditions: FrozenSet[str]   # facts required before the action
-    add_effects: FrozenSet[str]     # facts that become true
+    name: str  # readable name, e.g. "seal_container(P1)"
+    preconditions: FrozenSet[str]  # facts required before the action
+    add_effects: FrozenSet[str]  # facts that become true
     delete_effects: FrozenSet[str]  # facts that become false
-    duration: int = 1               # minutes (simulated)
-    dry_ice_cost: int = 0           # kg of dry ice consumed (simulated)
-    action_type: str = ""           # e.g. "seal_container"
-    package_id: str = ""            # e.g. "P1" (empty if not package specific)
+    duration: int = 1  # minutes (simulated)
+    dry_ice_cost: int = 0  # kg of dry ice consumed (simulated)
+    action_type: str = ""  # e.g. "seal_container"
+    package_id: str = ""  # e.g. "P1" (empty if not package specific)
 
     def is_applicable(self, state: State) -> bool:
         """An action is applicable when all of its preconditions hold."""

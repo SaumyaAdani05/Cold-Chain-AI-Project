@@ -24,8 +24,8 @@ class Scenario:
     key: str
     title: str
     description: str
-    lesson: str                          # what the scenario demonstrates
-    expected_outcome: str                # "success" or "failure"
+    lesson: str  # what the scenario demonstrates
+    expected_outcome: str  # "success" or "failure"
     packages: Tuple[PackageSpec, ...]
     constraints: ColdChainConstraints
 
@@ -45,14 +45,38 @@ class Scenario:
 
 # ---- Package templates ------------------------------------------------------
 
-FROZEN_P1 = PackageSpec("P1", "mRNA vaccine vial (frozen, needs dry ice)",
-                        needs_dry_ice=True, temp_min_c=-80.0, temp_max_c=-60.0, base_temp_c=-72.0)
-FROZEN_P3 = PackageSpec("P3", "Second frozen vaccine lot (needs dry ice)",
-                        needs_dry_ice=True, temp_min_c=-80.0, temp_max_c=-60.0, base_temp_c=-70.0)
-FRIDGE_P2 = PackageSpec("P2", "Refrigerated vaccine (2-8 C, no dry ice)",
-                        needs_dry_ice=False, temp_min_c=2.0, temp_max_c=8.0, base_temp_c=5.0)
-WARM_P2 = PackageSpec("P2", "Refrigerated vaccine that warmed up in transit",
-                      needs_dry_ice=False, temp_min_c=2.0, temp_max_c=8.0, base_temp_c=11.0)
+FROZEN_P1 = PackageSpec(
+    "P1",
+    "mRNA vaccine vial (frozen, needs dry ice)",
+    needs_dry_ice=True,
+    temp_min_c=-80.0,
+    temp_max_c=-60.0,
+    base_temp_c=-72.0,
+)
+FROZEN_P3 = PackageSpec(
+    "P3",
+    "Second frozen vaccine lot (needs dry ice)",
+    needs_dry_ice=True,
+    temp_min_c=-80.0,
+    temp_max_c=-60.0,
+    base_temp_c=-70.0,
+)
+FRIDGE_P2 = PackageSpec(
+    "P2",
+    "Refrigerated vaccine (2-8 C, no dry ice)",
+    needs_dry_ice=False,
+    temp_min_c=2.0,
+    temp_max_c=8.0,
+    base_temp_c=5.0,
+)
+WARM_P2 = PackageSpec(
+    "P2",
+    "Refrigerated vaccine that warmed up in transit",
+    needs_dry_ice=False,
+    temp_min_c=2.0,
+    temp_max_c=8.0,
+    base_temp_c=11.0,
+)
 
 
 SCENARIOS = (
@@ -63,8 +87,9 @@ SCENARIOS = (
         lesson="The full chain of eight operations, with pack and inspect in any order.",
         expected_outcome="success",
         packages=(FROZEN_P1,),
-        constraints=ColdChainConstraints(max_duration_minutes=120,
-                                         dry_ice_available_kg=10, dry_ice_per_package_kg=2),
+        constraints=ColdChainConstraints(
+            max_duration_minutes=120, dry_ice_available_kg=10, dry_ice_per_package_kg=2
+        ),
     ),
     Scenario(
         key="mixed_processing_requirements",
@@ -73,8 +98,9 @@ SCENARIOS = (
         lesson="Independent packages can be processed in parallel in a partial-order plan.",
         expected_outcome="success",
         packages=(FROZEN_P1, FRIDGE_P2, FROZEN_P3),
-        constraints=ColdChainConstraints(max_duration_minutes=240,
-                                         dry_ice_available_kg=10, dry_ice_per_package_kg=2),
+        constraints=ColdChainConstraints(
+            max_duration_minutes=240, dry_ice_available_kg=10, dry_ice_per_package_kg=2
+        ),
     ),
     Scenario(
         key="limited_dry_ice",
@@ -83,8 +109,9 @@ SCENARIOS = (
         lesson="Resource constraints make the goal unreachable within the stock.",
         expected_outcome="failure",
         packages=(FROZEN_P1, FROZEN_P3),
-        constraints=ColdChainConstraints(max_duration_minutes=240,
-                                         dry_ice_available_kg=2, dry_ice_per_package_kg=2),
+        constraints=ColdChainConstraints(
+            max_duration_minutes=240, dry_ice_available_kg=2, dry_ice_per_package_kg=2
+        ),
     ),
     Scenario(
         key="restricted_time_budget",
@@ -93,8 +120,9 @@ SCENARIOS = (
         lesson="The time budget rejects an otherwise logically correct plan.",
         expected_outcome="failure",
         packages=(FROZEN_P1,),
-        constraints=ColdChainConstraints(max_duration_minutes=30,
-                                         dry_ice_available_kg=10, dry_ice_per_package_kg=2),
+        constraints=ColdChainConstraints(
+            max_duration_minutes=30, dry_ice_available_kg=10, dry_ice_per_package_kg=2
+        ),
     ),
     Scenario(
         key="temperature_verification_failure",
@@ -103,8 +131,9 @@ SCENARIOS = (
         lesson="verify_temperature is not applicable, so no safe plan exists.",
         expected_outcome="failure",
         packages=(WARM_P2,),
-        constraints=ColdChainConstraints(max_duration_minutes=120,
-                                         dry_ice_available_kg=0, dry_ice_per_package_kg=0),
+        constraints=ColdChainConstraints(
+            max_duration_minutes=120, dry_ice_available_kg=0, dry_ice_per_package_kg=0
+        ),
     ),
     Scenario(
         key="refrigerated_only_success",
@@ -113,8 +142,9 @@ SCENARIOS = (
         lesson="Shows a successful plan that skips the pack-dry-ice operation.",
         expected_outcome="success",
         packages=(FRIDGE_P2,),
-        constraints=ColdChainConstraints(max_duration_minutes=60,
-                                         dry_ice_available_kg=0, dry_ice_per_package_kg=0),
+        constraints=ColdChainConstraints(
+            max_duration_minutes=60, dry_ice_available_kg=0, dry_ice_per_package_kg=0
+        ),
     ),
 )
 

@@ -32,9 +32,9 @@ DEFAULT_DURATIONS: Dict[str, int] = {
 class ColdChainConstraints:
     """Time budget, dry-ice stock and action durations for one scenario."""
 
-    max_duration_minutes: int        # total time budget for the whole plan
-    dry_ice_available_kg: int        # dry ice in stock
-    dry_ice_per_package_kg: int      # dry ice used by each package that needs it
+    max_duration_minutes: int  # total time budget for the whole plan
+    dry_ice_available_kg: int  # dry ice in stock
+    dry_ice_per_package_kg: int  # dry ice used by each package that needs it
     action_durations: Dict[str, int] = field(default_factory=lambda: dict(DEFAULT_DURATIONS))
 
     def duration_for(self, action_type: str) -> int:
@@ -58,13 +58,13 @@ class ColdChainConstraints:
 class PackageSpec:
     """One pharmaceutical package and its simulated temperature profile."""
 
-    package_id: str        # e.g. "P1"
-    label: str             # human-readable description
-    needs_dry_ice: bool    # True for frozen products that need dry ice
-    temp_min_c: float      # lowest acceptable temperature (simulated)
-    temp_max_c: float      # highest acceptable temperature (simulated)
-    base_temp_c: float     # centre of the simulated sensor readings
-    reading_count: int = 5 # how many sensor readings are simulated
+    package_id: str  # e.g. "P1"
+    label: str  # human-readable description
+    needs_dry_ice: bool  # True for frozen products that need dry ice
+    temp_min_c: float  # lowest acceptable temperature (simulated)
+    temp_max_c: float  # highest acceptable temperature (simulated)
+    base_temp_c: float  # centre of the simulated sensor readings
+    reading_count: int = 5  # how many sensor readings are simulated
 
 
 def simulate_temperature_readings(package: PackageSpec) -> List[float]:
@@ -77,8 +77,9 @@ def simulate_temperature_readings(package: PackageSpec) -> List[float]:
     """
     rng = random.Random(zlib.crc32(package.package_id.encode("utf-8")))
     jitter = 0.3  # +/- degrees of sensor noise
-    return [round(package.base_temp_c + rng.uniform(-jitter, jitter), 2)
-            for _ in range(package.reading_count)]
+    return [
+        round(package.base_temp_c + rng.uniform(-jitter, jitter), 2) for _ in range(package.reading_count)
+    ]
 
 
 def temperature_violations(package: PackageSpec, readings: List[float]) -> List[str]:
@@ -102,14 +103,14 @@ def temperature_ok(package: PackageSpec) -> bool:
 def check_time_budget(total_minutes: int, constraints: ColdChainConstraints) -> List[str]:
     """Return a violation message when the plan is longer than the budget."""
     if total_minutes > constraints.max_duration_minutes:
-        return [f"Total duration {total_minutes} min exceeds time budget "
-                f"{constraints.max_duration_minutes} min"]
+        return [
+            f"Total duration {total_minutes} min exceeds time budget {constraints.max_duration_minutes} min"
+        ]
     return []
 
 
 def check_dry_ice(used_kg: int, constraints: ColdChainConstraints) -> List[str]:
     """Return a violation message when the plan needs more dry ice than stocked."""
     if used_kg > constraints.dry_ice_available_kg:
-        return [f"Dry ice required {used_kg} kg exceeds available "
-                f"{constraints.dry_ice_available_kg} kg"]
+        return [f"Dry ice required {used_kg} kg exceeds available {constraints.dry_ice_available_kg} kg"]
     return []

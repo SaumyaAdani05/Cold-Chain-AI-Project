@@ -31,9 +31,9 @@ try:
         render_state_tables,
         render_status_badge,
     )
-    from ui.scenarios import get_all_scenarios
     from ui.sidebar import render_sidebar as render_prototype_sidebar
     from validator import ValidationResult, validate
+
     PROTOTYPE_AVAILABLE = True
 except Exception:
     PROTOTYPE_AVAILABLE = False
@@ -91,7 +91,7 @@ def render_dashboard(scenario) -> None:
         ("5. Visualise", "Look at the action sequence, state transitions, causal links and ordering."),
     ]
     columns = st.columns(len(steps))
-    for column, (heading, text) in zip(columns, steps):
+    for column, (heading, text) in zip(columns, steps, strict=False):
         column.markdown(f"**{heading}**\n\n{text}")
 
     st.subheader("Scenarios")
@@ -260,8 +260,7 @@ def render_results(scenario) -> None:
             if order_rows:
                 st.dataframe(pd.DataFrame(order_rows).astype(str), hide_index=True)
             st.write(
-                f"Unordered step pairs (free to run in either order): "
-                f"**{len(plan.independent_pairs())}**"
+                f"Unordered step pairs (free to run in either order): **{len(plan.independent_pairs())}**"
             )
 
         st.markdown("**Plan validation**")
@@ -318,9 +317,7 @@ def render_visualization(scenario) -> None:
         st.graphviz_chart(viz.causal_link_graph(pop_run.partial_plan).source)
 
         st.subheader("POP: ordering constraints")
-        st.caption(
-            "Dashed edges are ordering constraints. Steps with no path between them are independent."
-        )
+        st.caption("Dashed edges are ordering constraints. Steps with no path between them are independent.")
         st.graphviz_chart(viz.ordering_constraint_graph(pop_run.partial_plan).source)
 
 
@@ -382,9 +379,7 @@ def render_prototype_suite() -> None:
     )
 
     if generate_clicked:
-        planners_to_run = (
-            ["bfs", "pop"] if planner_choice == "Both" else [planner_choice.lower()]
-        )
+        planners_to_run = ["bfs", "pop"] if planner_choice == "Both" else [planner_choice.lower()]
         new_results: dict[str, PlannerResult] = {}
         new_validations: dict[str, ValidationResult] = {}
 
@@ -429,8 +424,7 @@ def render_prototype_suite() -> None:
 
         if not results:
             st.info(
-                "👈 Configure constraints in the sidebar, then click "
-                "**'Generate & Validate Plan'** to begin."
+                "👈 Configure constraints in the sidebar, then click **'Generate & Validate Plan'** to begin."
             )
         else:
             if planner_choice == "Both":

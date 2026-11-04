@@ -38,9 +38,7 @@ def build_comparison_dataframe(
             metrics_data.append(
                 {
                     "Planner": name.upper(),
-                    "Status": "✅ Valid"
-                    if is_valid
-                    else ("⚠️ No Plan" if not plan_found else "❌ Invalid"),
+                    "Status": "✅ Valid" if is_valid else ("⚠️ No Plan" if not plan_found else "❌ Invalid"),
                     "Planning Time (s)": round(res.time_s, 4),
                     "Plan Length": plan_len,
                     "Explored States/Nodes": res.explored,

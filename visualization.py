@@ -10,21 +10,39 @@ from typing import List, Sequence
 
 import graphviz
 
-from pop import FINISH, START, CausalLink, PartialOrderPlan
+from pop import FINISH, START, PartialOrderPlan
 from strips import Action, PlanningProblem, State
 
-_NODE_STYLE = {"shape": "box", "style": "rounded,filled", "fillcolor": "#EAF2FB",
-               "fontname": "Helvetica", "fontsize": "11"}
-_TERMINAL_STYLE = {"shape": "ellipse", "style": "filled", "fillcolor": "#E8F8F0",
-                   "fontname": "Helvetica", "fontsize": "11"}
-_GOAL_STYLE = {"shape": "ellipse", "style": "filled", "fillcolor": "#FDEBD0",
-               "fontname": "Helvetica", "fontsize": "11"}
+_NODE_STYLE = {
+    "shape": "box",
+    "style": "rounded,filled",
+    "fillcolor": "#EAF2FB",
+    "fontname": "Helvetica",
+    "fontsize": "11",
+}
+_TERMINAL_STYLE = {
+    "shape": "ellipse",
+    "style": "filled",
+    "fillcolor": "#E8F8F0",
+    "fontname": "Helvetica",
+    "fontsize": "11",
+}
+_GOAL_STYLE = {
+    "shape": "ellipse",
+    "style": "filled",
+    "fillcolor": "#FDEBD0",
+    "fontname": "Helvetica",
+    "fontsize": "11",
+}
 _LINK_COLOURS = ["#1F618D", "#7D3C98", "#117A65", "#B9770E", "#943126", "#2E4053"]
 
 
 def _digraph(name: str, rankdir: str = "TB") -> graphviz.Digraph:
-    return graphviz.Digraph(name, graph_attr={"rankdir": rankdir, "fontname": "Helvetica"},
-                            edge_attr={"fontname": "Helvetica", "fontsize": "10"})
+    return graphviz.Digraph(
+        name,
+        graph_attr={"rankdir": rankdir, "fontname": "Helvetica"},
+        edge_attr={"fontname": "Helvetica", "fontsize": "10"},
+    )
 
 
 def _short_list(items: Sequence[str], limit: int = 4) -> str:
@@ -95,8 +113,7 @@ def causal_link_graph(plan: PartialOrderPlan) -> graphviz.Digraph:
         dot.node(sid, f"{sid}: {plan.actions[sid].name}", **_NODE_STYLE)
     colour_of: dict = {}
     for link in plan.links:
-        colour = colour_of.setdefault(link.condition,
-                                      _LINK_COLOURS[len(colour_of) % len(_LINK_COLOURS)])
+        colour = colour_of.setdefault(link.condition, _LINK_COLOURS[len(colour_of) % len(_LINK_COLOURS)])
         source = "init" if link.producer == START else link.producer
         target = "goal" if link.consumer == FINISH else link.consumer
         dot.edge(source, target, label=link.condition, color=colour, fontcolor=colour)
@@ -112,8 +129,10 @@ def ordering_constraint_graph(plan: PartialOrderPlan) -> graphviz.Digraph:
         dot.edge(before, after, style="dashed", color="#34495E", arrowhead="normal")
     # Show the steps that have no ordering with each other as a legend.
     free = plan.independent_pairs()
-    label = (f"{len(plan.reduced_orderings())} ordering constraints; "
-             f"{len(free)} unordered step pairs (free to run in either order)")
+    label = (
+        f"{len(plan.reduced_orderings())} ordering constraints; "
+        f"{len(free)} unordered step pairs (free to run in either order)"
+    )
     dot.attr(label=label, labelloc="t", fontname="Helvetica", fontsize="12")
     return dot
 

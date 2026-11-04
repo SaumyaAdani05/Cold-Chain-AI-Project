@@ -20,8 +20,9 @@ from constraints import DEFAULT_DURATIONS, ColdChainConstraints
 from scenarios import FRIDGE_P2, FROZEN_P1, WARM_P2
 from validator import check_state_consistency
 
-CONSTRAINTS = ColdChainConstraints(max_duration_minutes=100,
-                                   dry_ice_available_kg=10, dry_ice_per_package_kg=2)
+CONSTRAINTS = ColdChainConstraints(
+    max_duration_minutes=100, dry_ice_available_kg=10, dry_ice_per_package_kg=2
+)
 
 
 def test_receive_moves_package_from_gate_to_receiving():
@@ -111,17 +112,26 @@ def test_frozen_package_has_eight_actions_and_refrigerated_has_seven():
 def test_action_types_cover_the_required_operations():
     names = {a.action_type for a in build_actions([FROZEN_P1], CONSTRAINTS)}
     assert names == {
-        "receive_package", "verify_temperature", "move_to_cold_room", "pack_dry_ice",
-        "inspect_container", "seal_container", "move_to_loading_dock", "load_pallet",
+        "receive_package",
+        "verify_temperature",
+        "move_to_cold_room",
+        "pack_dry_ice",
+        "inspect_container",
+        "seal_container",
+        "move_to_loading_dock",
+        "load_pallet",
     }
 
 
 def test_durations_come_from_constraints_and_can_be_changed():
     default_receive = receive_package(FROZEN_P1, CONSTRAINTS).duration
     assert default_receive == DEFAULT_DURATIONS["receive_package"]
-    custom = ColdChainConstraints(max_duration_minutes=10, dry_ice_available_kg=0,
-                                  dry_ice_per_package_kg=0,
-                                  action_durations={**DEFAULT_DURATIONS, "receive_package": 50})
+    custom = ColdChainConstraints(
+        max_duration_minutes=10,
+        dry_ice_available_kg=0,
+        dry_ice_per_package_kg=0,
+        action_durations={**DEFAULT_DURATIONS, "receive_package": 50},
+    )
     assert receive_package(FROZEN_P1, custom).duration == 50
 
 

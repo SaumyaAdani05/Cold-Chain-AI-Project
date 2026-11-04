@@ -2,7 +2,7 @@
 
 import pytest
 
-from comparison import comparison_rows, compare_algorithms
+from comparison import compare_algorithms, comparison_rows
 from main import main
 from scenarios import get_scenario, list_scenarios
 

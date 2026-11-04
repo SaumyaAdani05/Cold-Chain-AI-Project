@@ -43,10 +43,10 @@ class BFSResult:
 
     success: bool
     actions: List[Action] = field(default_factory=list)  # the plan (in order)
-    explored_states: int = 0       # states taken from the queue and expanded
-    generated_states: int = 0      # new states added to the queue
-    pruned_successors: int = 0     # successors rejected by time/dry-ice limits
-    elapsed_seconds: float = 0.0   # wall-clock planning time
+    explored_states: int = 0  # states taken from the queue and expanded
+    generated_states: int = 0  # new states added to the queue
+    pruned_successors: int = 0  # successors rejected by time/dry-ice limits
+    elapsed_seconds: float = 0.0  # wall-clock planning time
     message: str = ""
     final_state: Optional[State] = None
 
@@ -56,9 +56,9 @@ class BFSResult:
         return [action.name for action in self.actions]
 
 
-def bfs_plan(problem: PlanningProblem,
-             max_duration: Optional[int] = None,
-             max_dry_ice: Optional[int] = None) -> BFSResult:
+def bfs_plan(
+    problem: PlanningProblem, max_duration: Optional[int] = None, max_dry_ice: Optional[int] = None
+) -> BFSResult:
     """
     Search for a plan with breadth-first search.
 
@@ -125,14 +125,21 @@ def bfs_plan(problem: PlanningProblem,
 
     if goal_key is None:
         if pruned > 0:
-            message = ("No plan found. The search was exhausted, and "
-                       f"{pruned} successor state(s) were rejected by the "
-                       "time budget or dry-ice limit.")
+            message = (
+                "No plan found. The search was exhausted, and "
+                f"{pruned} successor state(s) were rejected by the "
+                "time budget or dry-ice limit."
+            )
         else:
             message = "No plan found. The search was exhausted without reaching the goal."
-        return BFSResult(success=False, explored_states=explored,
-                         generated_states=generated, pruned_successors=pruned,
-                         elapsed_seconds=elapsed, message=message)
+        return BFSResult(
+            success=False,
+            explored_states=explored,
+            generated_states=generated,
+            pruned_successors=pruned,
+            elapsed_seconds=elapsed,
+            message=message,
+        )
 
     # Walk the parent links backwards to rebuild the action sequence.
     actions_in_reverse: List[Action] = []

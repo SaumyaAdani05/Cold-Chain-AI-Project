@@ -160,8 +160,7 @@ def validate(
         if strict:
             if action.add.issubset(current_state) and not (action.delete & current_state):
                 warnings.append(
-                    f"Step {i} ({action.name}) is redundant: "
-                    "add effects already hold and nothing deleted."
+                    f"Step {i} ({action.name}) is redundant: add effects already hold and nothing deleted."
                 )
 
         # 3. Ambient exposure check before action applies
@@ -281,11 +280,7 @@ class ValidationReport:
     @property
     def all_problems(self) -> List[str]:
         """Every problem found, as one flat list of messages."""
-        return (
-            self.precondition_failures
-            + self.state_inconsistencies
-            + self.constraint_violations
-        )
+        return self.precondition_failures + self.state_inconsistencies + self.constraint_violations
 
 
 def check_state_consistency(state: State, package_ids: Sequence[str]) -> List[str]:
@@ -341,12 +336,7 @@ def validate_plan(scenario: Scenario, actions: Sequence[Action]) -> ValidationRe
     constraint_violations += check_dry_ice(dry_ice_kg, scenario.constraints)
 
     goal_achieved = not precondition_failures and problem.goal_satisfied(state)
-    valid = (
-        goal_achieved
-        and not precondition_failures
-        and not inconsistencies
-        and not constraint_violations
-    )
+    valid = goal_achieved and not precondition_failures and not inconsistencies and not constraint_violations
 
     return ValidationReport(
         valid=valid,
