@@ -1,0 +1,79 @@
+{
+  "key": "temperature_verification_failure",
+  "title": "5. Temperature verification failure",
+  "description": "A refrigerated package whose simulated readings (about 11 C) are above the 2-8 C range.",
+  "lesson": "verify_temperature is not applicable, so no safe plan exists.",
+  "expected_outcome": "failure",
+  "constraints": {
+    "max_duration_minutes": 120,
+    "dry_ice_available_kg": 0,
+    "dry_ice_per_package_kg": 0,
+    "action_durations": {
+      "receive_package": 5,
+      "verify_temperature": 3,
+      "move_to_cold_room": 4,
+      "pack_dry_ice": 6,
+      "inspect_container": 4,
+      "seal_container": 2,
+      "move_to_loading_dock": 3,
+      "load_pallet": 5
+    }
+  },
+  "packages": [
+    {
+      "package_id": "P2",
+      "label": "Refrigerated vaccine that warmed up in transit",
+      "needs_dry_ice": false,
+      "acceptable_range_c": [
+        2.0,
+        8.0
+      ],
+      "simulated_readings_c": [
+        11.01,
+        10.97,
+        11.29,
+        10.98,
+        11.19
+      ]
+    }
+  ],
+  "initial_state": [
+    "at_gate(P2)",
+    "container_open(P2)"
+  ],
+  "goal": [
+    "loaded(P2)"
+  ],
+  "results": [
+    {
+      "algorithm": "BFS",
+      "representation": "total order",
+      "status": "no_plan",
+      "message": "No plan found. The search was exhausted without reaching the goal.",
+      "explored": 2,
+      "planning_time_ms": 0.009,
+      "goal_achieved": false,
+      "plan": [],
+      "plan_length": 0,
+      "sequential_minutes": null,
+      "parallel_makespan_minutes": null,
+      "dry_ice_kg": null,
+      "violations": []
+    },
+    {
+      "algorithm": "POP",
+      "representation": "partial order",
+      "status": "no_plan",
+      "message": "No partially ordered plan exists: an open condition has no achiever, or every choice ended in a dead end.",
+      "explored": 10,
+      "planning_time_ms": 0.41,
+      "goal_achieved": false,
+      "plan": [],
+      "plan_length": 0,
+      "sequential_minutes": null,
+      "parallel_makespan_minutes": null,
+      "dry_ice_kg": null,
+      "violations": []
+    }
+  ]
+}

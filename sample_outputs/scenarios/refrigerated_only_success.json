@@ -1,0 +1,96 @@
+{
+  "key": "refrigerated_only_success",
+  "title": "6. Refrigerated package, no dry ice",
+  "description": "One refrigerated package that stays inside 2-8 C. No dry ice is needed.",
+  "lesson": "Shows a successful plan that skips the pack-dry-ice operation.",
+  "expected_outcome": "success",
+  "constraints": {
+    "max_duration_minutes": 60,
+    "dry_ice_available_kg": 0,
+    "dry_ice_per_package_kg": 0,
+    "action_durations": {
+      "receive_package": 5,
+      "verify_temperature": 3,
+      "move_to_cold_room": 4,
+      "pack_dry_ice": 6,
+      "inspect_container": 4,
+      "seal_container": 2,
+      "move_to_loading_dock": 3,
+      "load_pallet": 5
+    }
+  },
+  "packages": [
+    {
+      "package_id": "P2",
+      "label": "Refrigerated vaccine (2-8 C, no dry ice)",
+      "needs_dry_ice": false,
+      "acceptable_range_c": [
+        2.0,
+        8.0
+      ],
+      "simulated_readings_c": [
+        5.01,
+        4.97,
+        5.29,
+        4.98,
+        5.19
+      ]
+    }
+  ],
+  "initial_state": [
+    "at_gate(P2)",
+    "container_open(P2)",
+    "temp_in_range(P2)"
+  ],
+  "goal": [
+    "loaded(P2)"
+  ],
+  "results": [
+    {
+      "algorithm": "BFS",
+      "representation": "total order",
+      "status": "valid",
+      "message": "Plan found with 7 actions.",
+      "explored": 8,
+      "planning_time_ms": 0.076,
+      "goal_achieved": true,
+      "plan": [
+        "receive_package(P2)",
+        "verify_temperature(P2)",
+        "move_to_cold_room(P2)",
+        "inspect_container(P2)",
+        "seal_container(P2)",
+        "move_to_loading_dock(P2)",
+        "load_pallet(P2)"
+      ],
+      "plan_length": 7,
+      "sequential_minutes": 26,
+      "parallel_makespan_minutes": null,
+      "dry_ice_kg": 0,
+      "violations": []
+    },
+    {
+      "algorithm": "POP",
+      "representation": "partial order",
+      "status": "valid",
+      "message": "Partially ordered plan with 7 steps, 14 causal links and 6 ordering constraints.",
+      "explored": 15,
+      "planning_time_ms": 0.451,
+      "goal_achieved": true,
+      "plan": [
+        "receive_package(P2)",
+        "verify_temperature(P2)",
+        "move_to_cold_room(P2)",
+        "inspect_container(P2)",
+        "seal_container(P2)",
+        "move_to_loading_dock(P2)",
+        "load_pallet(P2)"
+      ],
+      "plan_length": 7,
+      "sequential_minutes": 26,
+      "parallel_makespan_minutes": 26,
+      "dry_ice_kg": 0,
+      "violations": []
+    }
+  ]
+}

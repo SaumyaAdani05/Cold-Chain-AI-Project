@@ -1,0 +1,119 @@
+{
+  "key": "limited_dry_ice",
+  "title": "3. Limited dry-ice stock",
+  "description": "Two frozen packages but only 2 kg of dry ice (2 kg needed per package).",
+  "lesson": "Resource constraints make the goal unreachable within the stock.",
+  "expected_outcome": "failure",
+  "constraints": {
+    "max_duration_minutes": 240,
+    "dry_ice_available_kg": 2,
+    "dry_ice_per_package_kg": 2,
+    "action_durations": {
+      "receive_package": 5,
+      "verify_temperature": 3,
+      "move_to_cold_room": 4,
+      "pack_dry_ice": 6,
+      "inspect_container": 4,
+      "seal_container": 2,
+      "move_to_loading_dock": 3,
+      "load_pallet": 5
+    }
+  },
+  "packages": [
+    {
+      "package_id": "P1",
+      "label": "mRNA vaccine vial (frozen, needs dry ice)",
+      "needs_dry_ice": true,
+      "acceptable_range_c": [
+        -80.0,
+        -60.0
+      ],
+      "simulated_readings_c": [
+        -71.98,
+        -71.82,
+        -72.26,
+        -71.76,
+        -71.7
+      ]
+    },
+    {
+      "package_id": "P3",
+      "label": "Second frozen vaccine lot (needs dry ice)",
+      "needs_dry_ice": true,
+      "acceptable_range_c": [
+        -80.0,
+        -60.0
+      ],
+      "simulated_readings_c": [
+        -70.06,
+        -69.78,
+        -70.27,
+        -70.18,
+        -69.88
+      ]
+    }
+  ],
+  "initial_state": [
+    "at_gate(P1)",
+    "at_gate(P3)",
+    "container_open(P1)",
+    "container_open(P3)",
+    "temp_in_range(P1)",
+    "temp_in_range(P3)"
+  ],
+  "goal": [
+    "loaded(P1)",
+    "loaded(P3)"
+  ],
+  "results": [
+    {
+      "algorithm": "BFS",
+      "representation": "total order",
+      "status": "no_plan",
+      "message": "No plan found. The search was exhausted, and 40 successor state(s) were rejected by the time budget or dry-ice limit.",
+      "explored": 75,
+      "planning_time_ms": 0.524,
+      "goal_achieved": false,
+      "plan": [],
+      "plan_length": 0,
+      "sequential_minutes": null,
+      "parallel_makespan_minutes": null,
+      "dry_ice_kg": null,
+      "violations": []
+    },
+    {
+      "algorithm": "POP",
+      "representation": "partial order",
+      "status": "rejected",
+      "message": "Partially ordered plan with 16 steps, 34 causal links and 16 ordering constraints.",
+      "explored": 35,
+      "planning_time_ms": 3.366,
+      "goal_achieved": true,
+      "plan": [
+        "receive_package(P1)",
+        "verify_temperature(P1)",
+        "move_to_cold_room(P1)",
+        "inspect_container(P1)",
+        "pack_dry_ice(P1)",
+        "seal_container(P1)",
+        "move_to_loading_dock(P1)",
+        "load_pallet(P1)",
+        "receive_package(P3)",
+        "verify_temperature(P3)",
+        "move_to_cold_room(P3)",
+        "inspect_container(P3)",
+        "pack_dry_ice(P3)",
+        "seal_container(P3)",
+        "move_to_loading_dock(P3)",
+        "load_pallet(P3)"
+      ],
+      "plan_length": 16,
+      "sequential_minutes": 64,
+      "parallel_makespan_minutes": 28,
+      "dry_ice_kg": 4,
+      "violations": [
+        "Dry ice required 4 kg exceeds available 2 kg"
+      ]
+    }
+  ]
+}

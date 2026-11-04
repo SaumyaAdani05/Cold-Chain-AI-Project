@@ -1,0 +1,91 @@
+{
+  "key": "restricted_time_budget",
+  "title": "4. Restricted transit-time budget",
+  "description": "One frozen package; the sequential process takes 32 min but the budget is 30 min.",
+  "lesson": "The time budget rejects an otherwise logically correct plan.",
+  "expected_outcome": "failure",
+  "constraints": {
+    "max_duration_minutes": 30,
+    "dry_ice_available_kg": 10,
+    "dry_ice_per_package_kg": 2,
+    "action_durations": {
+      "receive_package": 5,
+      "verify_temperature": 3,
+      "move_to_cold_room": 4,
+      "pack_dry_ice": 6,
+      "inspect_container": 4,
+      "seal_container": 2,
+      "move_to_loading_dock": 3,
+      "load_pallet": 5
+    }
+  },
+  "packages": [
+    {
+      "package_id": "P1",
+      "label": "mRNA vaccine vial (frozen, needs dry ice)",
+      "needs_dry_ice": true,
+      "acceptable_range_c": [
+        -80.0,
+        -60.0
+      ],
+      "simulated_readings_c": [
+        -71.98,
+        -71.82,
+        -72.26,
+        -71.76,
+        -71.7
+      ]
+    }
+  ],
+  "initial_state": [
+    "at_gate(P1)",
+    "container_open(P1)",
+    "temp_in_range(P1)"
+  ],
+  "goal": [
+    "loaded(P1)"
+  ],
+  "results": [
+    {
+      "algorithm": "BFS",
+      "representation": "total order",
+      "status": "no_plan",
+      "message": "No plan found. The search was exhausted, and 1 successor state(s) were rejected by the time budget or dry-ice limit.",
+      "explored": 9,
+      "planning_time_ms": 0.035,
+      "goal_achieved": false,
+      "plan": [],
+      "plan_length": 0,
+      "sequential_minutes": null,
+      "parallel_makespan_minutes": null,
+      "dry_ice_kg": null,
+      "violations": []
+    },
+    {
+      "algorithm": "POP",
+      "representation": "partial order",
+      "status": "rejected",
+      "message": "Partially ordered plan with 8 steps, 17 causal links and 8 ordering constraints.",
+      "explored": 18,
+      "planning_time_ms": 0.719,
+      "goal_achieved": true,
+      "plan": [
+        "receive_package(P1)",
+        "verify_temperature(P1)",
+        "move_to_cold_room(P1)",
+        "inspect_container(P1)",
+        "pack_dry_ice(P1)",
+        "seal_container(P1)",
+        "move_to_loading_dock(P1)",
+        "load_pallet(P1)"
+      ],
+      "plan_length": 8,
+      "sequential_minutes": 32,
+      "parallel_makespan_minutes": 28,
+      "dry_ice_kg": 2,
+      "violations": [
+        "Total duration 32 min exceeds time budget 30 min"
+      ]
+    }
+  ]
+}

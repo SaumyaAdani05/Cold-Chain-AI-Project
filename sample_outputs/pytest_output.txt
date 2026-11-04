@@ -1,0 +1,112 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- /opt/pyvenv/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.13.5', 'Platform': 'Linux-6.18.57-x86_64-with-glibc2.41', 'Packages': {'pytest': '9.0.2', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.13.0', 'ddtrace': '4.4.0', 'Faker': '40.1.2', 'asyncio': '1.3.0', 'cov': '7.0.0', 'json-report': '1.5.0', 'metadata': '3.1.1'}, 'PLATFORM': 'linux/amd64', 'CI': 'true'}
+rootdir: /mnt/data/cc_review/Cold_Chain_AI_Project
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.13.0, ddtrace-4.4.0, Faker-40.1.2, asyncio-1.3.0, cov-7.0.0, json-report-1.5.0, metadata-3.1.1
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 75 items
+
+tests/test_actions.py::test_receive_moves_package_from_gate_to_receiving PASSED [  1%]
+tests/test_actions.py::test_move_to_cold_room_needs_temperature_verified PASSED [  2%]
+tests/test_actions.py::test_apply_adds_and_deletes_effects PASSED        [  4%]
+tests/test_actions.py::test_apply_raises_when_precondition_missing PASSED [  5%]
+tests/test_actions.py::test_cannot_seal_before_inspection PASSED         [  6%]
+tests/test_actions.py::test_frozen_package_cannot_be_sealed_without_dry_ice PASSED [  8%]
+tests/test_actions.py::test_refrigerated_package_can_be_sealed_without_dry_ice PASSED [  9%]
+tests/test_actions.py::test_dry_ice_cannot_be_packed_into_sealed_container PASSED [ 10%]
+tests/test_actions.py::test_pack_dry_ice_consumes_configured_dry_ice PASSED [ 12%]
+tests/test_actions.py::test_seal_deletes_open_container_status PASSED    [ 13%]
+tests/test_actions.py::test_cannot_load_before_reaching_dock PASSED      [ 14%]
+tests/test_actions.py::test_move_to_dock_requires_sealed_container PASSED [ 16%]
+tests/test_actions.py::test_frozen_package_has_eight_actions_and_refrigerated_has_seven PASSED [ 17%]
+tests/test_actions.py::test_action_types_cover_the_required_operations PASSED [ 18%]
+tests/test_actions.py::test_durations_come_from_constraints_and_can_be_changed PASSED [ 20%]
+tests/test_actions.py::test_initial_state_has_temperature_fact_only_when_readings_in_range PASSED [ 21%]
+tests/test_actions.py::test_goal_is_every_package_loaded PASSED          [ 22%]
+tests/test_actions.py::test_location_consistency_detects_two_locations PASSED [ 24%]
+tests/test_actions.py::test_consistency_detects_open_and_sealed_container PASSED [ 25%]
+tests/test_actions.py::test_consistency_detects_sealing_without_inspection PASSED [ 26%]
+tests/test_actions.py::test_consistent_state_has_no_problems PASSED      [ 28%]
+tests/test_actions.py::test_verify_temperature_needs_in_range_fact PASSED [ 29%]
+tests/test_bfs.py::test_bfs_finds_valid_plan_for_single_frozen_vaccine PASSED [ 30%]
+tests/test_bfs.py::test_bfs_counts_explored_and_generated_states PASSED  [ 32%]
+tests/test_bfs.py::test_bfs_plan_for_multiple_packages_is_valid PASSED   [ 33%]
+tests/test_bfs.py::test_bfs_no_solution_when_temperature_check_fails PASSED [ 34%]
+tests/test_bfs.py::test_bfs_no_solution_when_dry_ice_is_insufficient PASSED [ 36%]
+tests/test_bfs.py::test_bfs_time_budget_boundary PASSED                  [ 37%]
+tests/test_bfs.py::test_bfs_goal_already_true_returns_empty_plan PASSED  [ 38%]
+tests/test_bfs.py::test_bfs_plan_respects_preconditions_step_by_step PASSED [ 40%]
+tests/test_bfs.py::test_bfs_terminates_when_an_action_can_be_repeated_without_budget PASSED [ 41%]
+tests/test_bfs.py::test_bfs_still_finds_shortest_plan_with_repeatable_actions PASSED [ 42%]
+tests/test_comparison.py::test_both_planners_match_expected_outcome[limited_dry_ice] PASSED [ 44%]
+tests/test_comparison.py::test_both_planners_match_expected_outcome[mixed_processing_requirements] PASSED [ 45%]
+tests/test_comparison.py::test_both_planners_match_expected_outcome[normal_single_vaccine] PASSED [ 46%]
+tests/test_comparison.py::test_both_planners_match_expected_outcome[refrigerated_only_success] PASSED [ 48%]
+tests/test_comparison.py::test_both_planners_match_expected_outcome[restricted_time_budget] PASSED [ 49%]
+tests/test_comparison.py::test_both_planners_match_expected_outcome[temperature_verification_failure] PASSED [ 50%]
+tests/test_comparison.py::test_every_scenario_has_an_expectation PASSED  [ 52%]
+tests/test_comparison.py::test_comparison_rows_have_one_row_per_algorithm PASSED [ 53%]
+tests/test_comparison.py::test_metrics_come_from_real_runs PASSED        [ 54%]
+tests/test_comparison.py::test_cli_list_returns_zero PASSED              [ 56%]
+tests/test_comparison.py::test_cli_unknown_scenario_returns_error_code PASSED [ 57%]
+tests/test_constraints.py::test_simulated_readings_are_deterministic PASSED [ 58%]
+tests/test_constraints.py::test_normal_refrigerated_readings_are_inside_range PASSED [ 60%]
+tests/test_constraints.py::test_frozen_package_is_inside_its_range PASSED [ 61%]
+tests/test_constraints.py::test_warm_package_is_reported_as_violation PASSED [ 62%]
+tests/test_constraints.py::test_time_budget_exceeded_is_reported PASSED  [ 64%]
+tests/test_constraints.py::test_time_budget_exactly_equal_is_allowed PASSED [ 65%]
+tests/test_constraints.py::test_dry_ice_shortage_is_reported PASSED      [ 66%]
+tests/test_constraints.py::test_dry_ice_exactly_equal_is_allowed PASSED  [ 68%]
+tests/test_constraints.py::test_invalid_configuration_is_rejected PASSED [ 69%]
+tests/test_constraints.py::test_negative_duration_is_rejected PASSED     [ 70%]
+tests/test_pop.py::test_pop_finds_valid_plan_for_single_frozen_vaccine PASSED [ 72%]
+tests/test_pop.py::test_causal_links_connect_producers_to_consumers PASSED [ 73%]
+tests/test_pop.py::test_ordering_constraints_follow_the_cold_chain_logic PASSED [ 74%]
+tests/test_pop.py::test_pack_dry_ice_and_inspection_are_independent PASSED [ 76%]
+tests/test_pop.py::test_independent_packages_are_not_ordered_against_each_other PASSED [ 77%]
+tests/test_pop.py::test_parallel_makespan_is_shorter_than_sequential_duration PASSED [ 78%]
+tests/test_pop.py::test_threat_is_detected_when_seal_could_run_before_pack PASSED [ 80%]
+tests/test_pop.py::test_promotion_is_rejected_when_it_would_create_a_cycle PASSED [ 81%]
+tests/test_pop.py::test_demotion_removes_the_threat PASSED               [ 82%]
+tests/test_pop.py::test_linearization_respects_every_ordering_constraint PASSED [ 84%]
+tests/test_pop.py::test_pop_reports_no_plan_when_temperature_check_fails PASSED [ 85%]
+tests/test_pop.py::test_pop_does_not_enforce_time_or_dry_ice_limits_during_search PASSED [ 86%]
+tests/test_pop.py::test_pop_time_budget_violation_is_caught_by_validator PASSED [ 88%]
+tests/test_validator.py::test_validator_accepts_a_correct_bfs_plan PASSED [ 89%]
+tests/test_validator.py::test_validator_rejects_sealing_before_inspection PASSED [ 90%]
+tests/test_validator.py::test_validator_rejects_loading_before_dock PASSED [ 92%]
+tests/test_validator.py::test_validator_reports_temperature_violation_for_warm_package PASSED [ 93%]
+tests/test_validator.py::test_partial_plan_does_not_achieve_goal PASSED  [ 94%]
+tests/test_validator.py::test_one_package_within_dry_ice_stock_is_not_flagged PASSED [ 96%]
+tests/test_validator.py::test_two_packages_exceed_dry_ice_stock_and_are_flagged PASSED [ 97%]
+tests/test_validator.py::test_every_scenario_builds_a_consistent_problem PASSED [ 98%]
+tests/test_validator.py::test_unknown_scenario_key_raises_helpful_error PASSED [100%]
+
+============================== 75 passed in 0.26s ==============================
+
+STDERR:
+Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+      at emitWarning (unknown:1:1)
+      at warnOnDeactivatedColors (internal:tty:33:24)
+      at getColorDepth (internal:tty:42:39)
+      at shouldColorize (internal:util/colors:14:109)
+      at refresh (internal:util/colors:18:31)
+      at internal:util/colors (internal:util/colors:24:16)
+      at anonymous (unknown:1:1)
+      at internal:assert/assertion_error (internal:assert/assertion_error:2:187)
+      at anonymous (unknown:1:1)
+      at loadAssertionError (node:assert:28:96)
+
+Spreadsheet runtime warmup failed during python startup
+Traceback (most recent call last):
+  File "/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/patches/warm_spreadsheet_runtime_on_startup.py", line 26, in warm_spreadsheet_runtime_on_startup
+  File "/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/spreadsheet_warmup.py", line 785, in warm_spreadsheet_runtime
+  File "/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/spreadsheet_warmup.py", line 718, in _warm_feature_flows
+  File "/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/spreadsheet_warmup.py", line 509, in _warm_drawing_and_image_flows
+  File "/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/generated/interface/models.py", line 32861, in bring_to_front
+  File "/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/rpc/remote.py", line 764, in __call__
+  File "/tmp/tmp.QlpUkOUI9D/artifact_tool_v2-2.8.66/artifact_tool/rpc/client.py", line 175, in call
+artifact_tool.rpc.client.RemoteError: Element ordering requires an owning element collection.

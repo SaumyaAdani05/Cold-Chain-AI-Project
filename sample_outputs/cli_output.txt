@@ -1,0 +1,203 @@
+==============================================================================
+1. Normal transport of one frozen vaccine   (expected: success)
+  One frozen vaccine package with enough dry ice and time.
+  [BFS] Valid plan
+      message      : Plan found with 8 actions.
+      explored     : 10 (states)
+      time         : 0.089 ms
+      goal achieved: yes
+      plan length  : 8 actions
+      duration     : 32 min (sequential)
+      dry ice used : 2 kg
+      plan (one valid order):
+         1. receive_package(P1)
+         2. verify_temperature(P1)
+         3. move_to_cold_room(P1)
+         4. pack_dry_ice(P1)
+         5. inspect_container(P1)
+         6. seal_container(P1)
+         7. move_to_loading_dock(P1)
+         8. load_pallet(P1)
+  [POP] Valid plan
+      message      : Partially ordered plan with 8 steps, 17 causal links and 8 ordering constraints.
+      explored     : 18 (nodes)
+      time         : 1.008 ms
+      goal achieved: yes
+      plan length  : 8 actions
+      duration     : 32 min (sequential)
+      dry ice used : 2 kg
+      plan (one valid order):
+         1. receive_package(P1)
+         2. verify_temperature(P1)
+         3. move_to_cold_room(P1)
+         4. inspect_container(P1)
+         5. pack_dry_ice(P1)
+         6. seal_container(P1)
+         7. move_to_loading_dock(P1)
+         8. load_pallet(P1)
+      causal links : 17
+      ordering constraints (non-redundant): 8
+      unordered step pairs: 1
+      parallel makespan   : 28 min (informational)
+==============================================================================
+2. Three packages with different requirements   (expected: success)
+  Two frozen packages (dry ice) and one refrigerated package (no dry ice).
+  [BFS] Valid plan
+      message      : Plan found with 23 actions.
+      explored     : 800 (states)
+      time         : 7.420 ms
+      goal achieved: yes
+      plan length  : 23 actions
+      duration     : 90 min (sequential)
+      dry ice used : 4 kg
+      plan (one valid order):
+         1. receive_package(P1)
+         2. verify_temperature(P1)
+         3. move_to_cold_room(P1)
+         4. pack_dry_ice(P1)
+         5. inspect_container(P1)
+         6. seal_container(P1)
+         7. move_to_loading_dock(P1)
+         8. load_pallet(P1)
+         9. receive_package(P2)
+        10. verify_temperature(P2)
+        11. move_to_cold_room(P2)
+        12. inspect_container(P2)
+        13. seal_container(P2)
+        14. move_to_loading_dock(P2)
+        15. load_pallet(P2)
+        16. receive_package(P3)
+        17. verify_temperature(P3)
+        18. move_to_cold_room(P3)
+        19. pack_dry_ice(P3)
+        20. inspect_container(P3)
+        21. seal_container(P3)
+        22. move_to_loading_dock(P3)
+        23. load_pallet(P3)
+  [POP] Valid plan
+      message      : Partially ordered plan with 23 steps, 48 causal links and 22 ordering constraints.
+      explored     : 49 (nodes)
+      time         : 8.818 ms
+      goal achieved: yes
+      plan length  : 23 actions
+      duration     : 90 min (sequential)
+      dry ice used : 4 kg
+      plan (one valid order):
+         1. receive_package(P1)
+         2. verify_temperature(P1)
+         3. move_to_cold_room(P1)
+         4. inspect_container(P1)
+         5. pack_dry_ice(P1)
+         6. seal_container(P1)
+         7. move_to_loading_dock(P1)
+         8. load_pallet(P1)
+         9. receive_package(P2)
+        10. verify_temperature(P2)
+        11. move_to_cold_room(P2)
+        12. inspect_container(P2)
+        13. seal_container(P2)
+        14. move_to_loading_dock(P2)
+        15. load_pallet(P2)
+        16. receive_package(P3)
+        17. verify_temperature(P3)
+        18. move_to_cold_room(P3)
+        19. inspect_container(P3)
+        20. pack_dry_ice(P3)
+        21. seal_container(P3)
+        22. move_to_loading_dock(P3)
+        23. load_pallet(P3)
+      causal links : 48
+      ordering constraints (non-redundant): 22
+      unordered step pairs: 178
+      parallel makespan   : 28 min (informational)
+==============================================================================
+3. Limited dry-ice stock   (expected: failure)
+  Two frozen packages but only 2 kg of dry ice (2 kg needed per package).
+  [BFS] No plan found
+      message      : No plan found. The search was exhausted, and 40 successor state(s) were rejected by the time budget or dry-ice limit.
+      explored     : 75 (states)
+      time         : 0.472 ms
+  [POP] Plan rejected by constraints
+      message      : Partially ordered plan with 16 steps, 34 causal links and 16 ordering constraints.
+      explored     : 35 (nodes)
+      time         : 3.113 ms
+      goal achieved: yes
+      plan length  : 16 actions
+      duration     : 64 min (sequential)
+      dry ice used : 4 kg
+      violation    : Dry ice required 4 kg exceeds available 2 kg
+      causal links : 34
+      ordering constraints (non-redundant): 16
+      unordered step pairs: 66
+      parallel makespan   : 28 min (informational)
+==============================================================================
+4. Restricted transit-time budget   (expected: failure)
+  One frozen package; the sequential process takes 32 min but the budget is 30 min.
+  [BFS] No plan found
+      message      : No plan found. The search was exhausted, and 1 successor state(s) were rejected by the time budget or dry-ice limit.
+      explored     : 9 (states)
+      time         : 0.033 ms
+  [POP] Plan rejected by constraints
+      message      : Partially ordered plan with 8 steps, 17 causal links and 8 ordering constraints.
+      explored     : 18 (nodes)
+      time         : 0.908 ms
+      goal achieved: yes
+      plan length  : 8 actions
+      duration     : 32 min (sequential)
+      dry ice used : 2 kg
+      violation    : Total duration 32 min exceeds time budget 30 min
+      causal links : 17
+      ordering constraints (non-redundant): 8
+      unordered step pairs: 1
+      parallel makespan   : 28 min (informational)
+==============================================================================
+5. Temperature verification failure   (expected: failure)
+  A refrigerated package whose simulated readings (about 11 C) are above the 2-8 C range.
+  [BFS] No plan found
+      message      : No plan found. The search was exhausted without reaching the goal.
+      explored     : 2 (states)
+      time         : 0.007 ms
+  [POP] No plan found
+      message      : No partially ordered plan exists: an open condition has no achiever, or every choice ended in a dead end.
+      explored     : 10 (nodes)
+      time         : 0.241 ms
+==============================================================================
+6. Refrigerated package, no dry ice   (expected: success)
+  One refrigerated package that stays inside 2-8 C. No dry ice is needed.
+  [BFS] Valid plan
+      message      : Plan found with 7 actions.
+      explored     : 8 (states)
+      time         : 0.022 ms
+      goal achieved: yes
+      plan length  : 7 actions
+      duration     : 26 min (sequential)
+      dry ice used : 0 kg
+      plan (one valid order):
+         1. receive_package(P2)
+         2. verify_temperature(P2)
+         3. move_to_cold_room(P2)
+         4. inspect_container(P2)
+         5. seal_container(P2)
+         6. move_to_loading_dock(P2)
+         7. load_pallet(P2)
+  [POP] Valid plan
+      message      : Partially ordered plan with 7 steps, 14 causal links and 6 ordering constraints.
+      explored     : 15 (nodes)
+      time         : 0.406 ms
+      goal achieved: yes
+      plan length  : 7 actions
+      duration     : 26 min (sequential)
+      dry ice used : 0 kg
+      plan (one valid order):
+         1. receive_package(P2)
+         2. verify_temperature(P2)
+         3. move_to_cold_room(P2)
+         4. inspect_container(P2)
+         5. seal_container(P2)
+         6. move_to_loading_dock(P2)
+         7. load_pallet(P2)
+      causal links : 14
+      ordering constraints (non-redundant): 6
+      unordered step pairs: 0
+      parallel makespan   : 26 min (informational)
+==============================================================================
