@@ -3,4 +3,8 @@
 streamlit>=1.40.0
 graphviz>=0.20.1
 pandas>=2.0.0
+matplotlib>=3.8
 pytest>=8.0.0
+pytest-cov>=5.0
+ruff
+black

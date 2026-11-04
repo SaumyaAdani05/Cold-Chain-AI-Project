@@ -1,20 +1,29 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*$py.class
+
+# Testing & Coverage
+.coverage
+.coverage.*
+htmlcov/
 .pytest_cache/
+
+# Streamlit
+.streamlit/
+.streamlit/secrets.toml
 
 # Virtual environments
 .venv/
 venv/
+env/
+ENV/
 
 # Editors and OS files
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
-
-# Streamlit local settings
-.streamlit/secrets.toml
 
 # Generated files
 *.zip

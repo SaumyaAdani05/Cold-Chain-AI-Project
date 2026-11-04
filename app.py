@@ -1,8 +1,16 @@
 """
-app.py - Streamlit user interface for the Cold-Chain AI planning project.
+app.py - Streamlit user interface for the Cold-Chain AI Planning Project.
+
+Integrates both:
+1. The Core AI Planning Suite: Real forward BFS & POP planners, scenario inspector,
+   live execution metrics, and interactive Graphviz visualizations.
+2. The Prototype & Compliance Testbed: S1-S5 PRD reference scenarios, constraint tuning,
+   manual plan validation, and PEAS architecture review.
 
 Run with:  streamlit run app.py
 """
+
+from __future__ import annotations
 
 import pandas as pd
 import streamlit as st
@@ -12,11 +20,36 @@ from comparison import STATUS_LABELS, AlgorithmRun, compare_algorithms, comparis
 from constraints import simulate_temperature_readings, temperature_violations
 from scenarios import get_scenario, list_scenarios
 
+# Optional imports for the Prototype & Compliance Testbed
+try:
+    from adapter import PlannerResult, run_planner
+    from ui.compare import render_comparison_metrics
+    from ui.panels import (
+        render_compliance_panel,
+        render_graph_view,
+        render_plan_table,
+        render_state_tables,
+        render_status_badge,
+    )
+    from ui.scenarios import get_all_scenarios
+    from ui.sidebar import render_sidebar as render_prototype_sidebar
+    from validator import ValidationResult, validate
+    PROTOTYPE_AVAILABLE = True
+except Exception:
+    PROTOTYPE_AVAILABLE = False
+
 st.set_page_config(page_title="Cold-Chain AI Planner", page_icon="🧊", layout="wide")
 
-DISCLAIMER = ("All temperatures, durations, dry-ice amounts and time budgets in this app are "
-              "**simulated assumptions for teaching**. They are not validated pharmaceutical "
-              "transport standards, and the app does not certify compliance with anything.")
+DISCLAIMER = (
+    "All temperatures, durations, dry-ice amounts and time budgets in this app are "
+    "**simulated assumptions for teaching**. They are not validated pharmaceutical "
+    "transport standards, and the app does not certify compliance with anything."
+)
+
+
+# =====================================================================
+# AI Planning Suite (Samkit)
+# =====================================================================
 
 
 def store_runs(scenario_key: str, runs) -> None:
@@ -64,14 +97,16 @@ def render_dashboard(scenario) -> None:
     st.subheader("Scenarios")
     rows = []
     for item in list_scenarios():
-        rows.append({
-            "Scenario": item.title,
-            "Packages": len(item.packages),
-            "Time budget (min)": item.constraints.max_duration_minutes,
-            "Dry ice (kg)": item.constraints.dry_ice_available_kg,
-            "Expected outcome": item.expected_outcome,
-            "What it shows": item.lesson,
-        })
+        rows.append(
+            {
+                "Scenario": item.title,
+                "Packages": len(item.packages),
+                "Time budget (min)": item.constraints.max_duration_minutes,
+                "Dry ice (kg)": item.constraints.dry_ice_available_kg,
+                "Expected outcome": item.expected_outcome,
+                "What it shows": item.lesson,
+            }
+        )
     st.dataframe(pd.DataFrame(rows).astype(str), hide_index=True)
     st.markdown(f"**Selected scenario:** {scenario.title}. {scenario.description}")
 
@@ -102,27 +137,31 @@ def render_scenario_details(scenario) -> None:
     for pkg in scenario.packages:
         readings = simulate_temperature_readings(pkg)
         problems = temperature_violations(pkg, readings)
-        package_rows.append({
-            "Package": pkg.package_id,
-            "Description": pkg.label,
-            "Needs dry ice": "yes" if pkg.needs_dry_ice else "no",
-            "Acceptable range (°C)": f"{pkg.temp_min_c} to {pkg.temp_max_c}",
-            "Simulated readings (°C)": ", ".join(str(r) for r in readings),
-            "Temperature check": "OK" if not problems else "OUT OF RANGE",
-        })
+        package_rows.append(
+            {
+                "Package": pkg.package_id,
+                "Description": pkg.label,
+                "Needs dry ice": "yes" if pkg.needs_dry_ice else "no",
+                "Acceptable range (°C)": f"{pkg.temp_min_c} to {pkg.temp_max_c}",
+                "Simulated readings (°C)": ", ".join(str(r) for r in readings),
+                "Temperature check": "OK" if not problems else "OUT OF RANGE",
+            }
+        )
     st.dataframe(pd.DataFrame(package_rows).astype(str), hide_index=True)
 
     st.subheader("Available actions")
     action_rows = []
     for action in problem.actions:
-        action_rows.append({
-            "Action": action.name,
-            "Preconditions": ", ".join(sorted(action.preconditions)) or "-",
-            "Add effects": ", ".join(sorted(action.add_effects)) or "-",
-            "Delete effects": ", ".join(sorted(action.delete_effects)) or "-",
-            "Duration (min)": action.duration,
-            "Dry ice (kg)": action.dry_ice_cost,
-        })
+        action_rows.append(
+            {
+                "Action": action.name,
+                "Preconditions": ", ".join(sorted(action.preconditions)) or "-",
+                "Add effects": ", ".join(sorted(action.add_effects)) or "-",
+                "Delete effects": ", ".join(sorted(action.delete_effects)) or "-",
+                "Duration (min)": action.duration,
+                "Dry ice (kg)": action.dry_ice_cost,
+            }
+        )
     st.dataframe(pd.DataFrame(action_rows).astype(str), hide_index=True)
 
 
@@ -193,20 +232,28 @@ def render_results(scenario) -> None:
             for index, action in enumerate(run.actions, start=1):
                 elapsed += action.duration
                 dry_ice += action.dry_ice_cost
-                sequence_rows.append({
-                    "Step": index,
-                    "Action": action.name,
-                    "Duration (min)": action.duration,
-                    "Cumulative time (min)": elapsed,
-                    "Cumulative dry ice (kg)": dry_ice,
-                })
+                sequence_rows.append(
+                    {
+                        "Step": index,
+                        "Action": action.name,
+                        "Duration (min)": action.duration,
+                        "Cumulative time (min)": elapsed,
+                        "Cumulative dry ice (kg)": dry_ice,
+                    }
+                )
             st.dataframe(pd.DataFrame(sequence_rows).astype(str), hide_index=True)
 
         if run.partial_plan is not None:
             plan = run.partial_plan
             st.markdown("**Causal links** (producer → condition → consumer)")
-            link_rows = [{"Producer": link.producer, "Condition": link.condition,
-                          "Consumer": link.consumer} for link in plan.links]
+            link_rows = [
+                {
+                    "Producer": link.producer,
+                    "Condition": link.condition,
+                    "Consumer": link.consumer,
+                }
+                for link in plan.links
+            ]
             st.dataframe(pd.DataFrame(link_rows).astype(str), hide_index=True)
             st.markdown("**Ordering constraints** (non-redundant)")
             order_rows = [{"Before": a, "After": b} for a, b in plan.reduced_orderings()]
@@ -222,13 +269,19 @@ def render_results(scenario) -> None:
             st.write("No plan to validate.")
         else:
             report = run.validation
-            st.write(f"- Preconditions satisfied at every step: "
-                     f"{'yes' if not report.precondition_failures else 'no'}")
+            st.write(
+                f"- Preconditions satisfied at every step: "
+                f"{'yes' if not report.precondition_failures else 'no'}"
+            )
             st.write(f"- Goal achieved: {'yes' if report.goal_achieved else 'no'}")
-            st.write(f"- Time budget: {report.total_duration} min used of "
-                     f"{scenario.constraints.max_duration_minutes} min")
-            st.write(f"- Dry ice: {report.dry_ice_used_kg} kg used of "
-                     f"{scenario.constraints.dry_ice_available_kg} kg")
+            st.write(
+                f"- Time budget: {report.total_duration} min used of "
+                f"{scenario.constraints.max_duration_minutes} min"
+            )
+            st.write(
+                f"- Dry ice: {report.dry_ice_used_kg} kg used of "
+                f"{scenario.constraints.dry_ice_available_kg} kg"
+            )
             if report.all_problems:
                 st.markdown("**Constraint and validation violations**")
                 for problem_text in report.all_problems:
@@ -265,26 +318,29 @@ def render_visualization(scenario) -> None:
         st.graphviz_chart(viz.causal_link_graph(pop_run.partial_plan).source)
 
         st.subheader("POP: ordering constraints")
-        st.caption("Dashed edges are ordering constraints. Steps with no path between them are independent.")
+        st.caption(
+            "Dashed edges are ordering constraints. Steps with no path between them are independent."
+        )
         st.graphviz_chart(viz.ordering_constraint_graph(pop_run.partial_plan).source)
 
 
-def main() -> None:
-    if "runs" not in st.session_state:
-        st.session_state["runs"] = {}
-
+def render_planning_suite() -> None:
     scenarios = list_scenarios()
     keys = [s.key for s in scenarios]
     with st.sidebar:
-        st.title("Cold-Chain Planner")
-        selected_key = st.selectbox("Scenario", keys,
-                                    format_func=lambda k: get_scenario(k).title)
+        st.subheader("Scenario Selection")
+        selected_key = st.selectbox(
+            "Scenario",
+            keys,
+            format_func=lambda k: get_scenario(k).title,
+        )
         scenario = get_scenario(selected_key)
         st.caption(f"Expected outcome: **{scenario.expected_outcome}**")
         st.info(DISCLAIMER)
 
     tab_dash, tab_details, tab_engine, tab_results, tab_viz = st.tabs(
-        ["Dashboard", "Scenario Details", "Planning Engine", "Results", "Visualization"])
+        ["Dashboard", "Scenario Details", "Planning Engine", "Results", "Visualization"]
+    )
     with tab_dash:
         render_dashboard(scenario)
     with tab_details:
@@ -297,4 +353,149 @@ def main() -> None:
         render_visualization(scenario)
 
 
-main()
+# =====================================================================
+# Prototype & Compliance Testbed (Saumya)
+# =====================================================================
+
+
+def render_prototype_suite() -> None:
+    if not PROTOTYPE_AVAILABLE:
+        st.error("Prototype UI modules are not available.")
+        return
+
+    if "results" not in st.session_state:
+        st.session_state.results = {}
+    if "validations" not in st.session_state:
+        st.session_state.validations = {}
+    if "last_inputs" not in st.session_state:
+        st.session_state.last_inputs = None
+
+    scenario, planner_choice, constraints, generate_clicked = render_prototype_sidebar()
+
+    current_inputs = (
+        scenario.id,
+        constraints["stock"],
+        constraints["budget"],
+        constraints["limit"],
+        constraints["strict"],
+        planner_choice,
+    )
+
+    if generate_clicked:
+        planners_to_run = (
+            ["bfs", "pop"] if planner_choice == "Both" else [planner_choice.lower()]
+        )
+        new_results: dict[str, PlannerResult] = {}
+        new_validations: dict[str, ValidationResult] = {}
+
+        with st.spinner("Executing planners and validating action sequences..."):
+            for p_name in planners_to_run:
+                res = run_planner(p_name, scenario, timeout_s=30.0)
+                new_results[p_name] = res
+
+                if res.plan is not None:
+                    val_res = validate(
+                        init=scenario.init,
+                        goal=scenario.goal,
+                        plan=res.plan,
+                        dry_ice_stock=constraints["stock"],
+                        time_budget=constraints["budget"],
+                        exposure_limit=constraints["limit"],
+                        strict=constraints["strict"],
+                    )
+                    new_validations[p_name] = val_res
+                else:
+                    new_validations[p_name] = None
+
+        st.session_state.results = new_results
+        st.session_state.validations = new_validations
+        st.session_state.last_inputs = current_inputs
+
+    tab_planner, tab_manual, tab_about = st.tabs(
+        [
+            "🚀 Planner Execution & Compliance",
+            "🧪 Manual Plan Validation",
+            "📖 Domain & PEAS Architecture",
+        ]
+    )
+
+    with tab_planner:
+        st.subheader(f"Scenario {scenario.id}: {scenario.title}")
+        render_state_tables(scenario.init, scenario.goal)
+        st.divider()
+
+        results = st.session_state.results
+        validations = st.session_state.validations
+
+        if not results:
+            st.info(
+                "👈 Configure constraints in the sidebar, then click "
+                "**'Generate & Validate Plan'** to begin."
+            )
+        else:
+            if planner_choice == "Both":
+                col_bfs, col_pop = st.columns(2)
+                with col_bfs:
+                    st.markdown("### 🔹 Baseline: Forward BFS")
+                    if "bfs" in results:
+                        res_bfs = results["bfs"]
+                        val_bfs = validations.get("bfs")
+                        render_status_badge("BFS", res_bfs, val_bfs)
+                        if res_bfs.plan and val_bfs:
+                            render_compliance_panel(
+                                val_bfs,
+                                constraints["stock"],
+                                constraints["budget"],
+                                constraints["limit"],
+                            )
+                            with st.expander("Step-by-Step Action Sequence", expanded=True):
+                                render_plan_table(res_bfs.plan, val_bfs)
+                            render_graph_view("BFS", res_bfs, val_bfs)
+
+                with col_pop:
+                    st.markdown("### 🔸 Advanced: Partial-Order Planner (POP)")
+                    if "pop" in results:
+                        res_pop = results["pop"]
+                        val_pop = validations.get("pop")
+                        render_status_badge("POP", res_pop, val_pop)
+                        if res_pop.plan and val_pop:
+                            render_compliance_panel(
+                                val_pop,
+                                constraints["stock"],
+                                constraints["budget"],
+                                constraints["limit"],
+                            )
+                            with st.expander("Step-by-Step Action Sequence", expanded=True):
+                                render_plan_table(res_pop.plan, val_pop)
+                            render_graph_view("POP", res_pop, val_pop)
+
+                st.divider()
+                render_comparison_metrics(results, validations)
+
+
+# =====================================================================
+# Main Application Entrypoint
+# =====================================================================
+
+
+def main() -> None:
+    if "runs" not in st.session_state:
+        st.session_state["runs"] = {}
+
+    with st.sidebar:
+        st.markdown("## 🧊 Cold-Chain AI Planner")
+        mode = st.radio(
+            "Select Interface:",
+            ["Planning Suite (BFS & POP)", "Prototype & Compliance Testing"],
+            index=0,
+        )
+        st.markdown("---")
+
+    if mode == "Planning Suite (BFS & POP)":
+        render_planning_suite()
+    else:
+        render_prototype_suite()
+
+
+if __name__ == "__main__":
+    main()
